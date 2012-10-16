@@ -27,7 +27,8 @@
 #include <string>
 #include <algorithm>
 #include <limits>
-#include <boost/multi_array.hpp>
+
+#include "multiarray.h"
 
 /**
  * The Damerau-Levenshtein Algorithm is an extension to the Levenshtein
@@ -91,8 +92,7 @@ public:
 	int32_t execute(const std::string &source,
 			const std::string &target) const {
 		std::tr1::unordered_map<char, uint32_t> source_index_by_char;
-		boost::multi_array<int32_t, 2> table(
-				boost::extents[source.size()][target.size()]);
+		MultiArray<int32_t, 2> table(source.size(), target.size());
 		if (source[0] == target[0]) {
 			table[0][0] = 0;
 		} else {

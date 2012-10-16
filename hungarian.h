@@ -24,7 +24,8 @@
 
 #include <algorithm>
 #include <limits>
-#include <boost/multi_array.hpp>
+
+#include "multiarray.h"
 
 /**
  * An implementation of the Hungarian algorithm for solving the assignment
@@ -54,16 +55,12 @@ class Hungarian {
 public:
 	static const uint32_t UNASSIGNED;
 
-	Hungarian(const boost::multi_array<double, 2> &costMatrix) :
+	Hungarian(const MultiArray<double, 2> &costMatrix) :
 			rows(costMatrix.size()), cols(costMatrix[0].size()), dim(
-					std::max(rows, cols)), cost_matrix(
-					boost::extents[dim][dim]), label_by_worker(
-					boost::extents[dim]), label_by_job(boost::extents[dim]), min_slack_by_job(
-					boost::extents[dim]), min_slack_worker_by_job(
-					boost::extents[dim]), match_job_by_worker(
-					boost::extents[dim]), match_worker_by_job(
-					boost::extents[dim]), parent_worker_by_committed_job(
-					boost::extents[dim]), committed_workers(boost::extents[dim]) {
+					std::max(rows, cols)), cost_matrix(dim, dim), label_by_worker(
+					dim), label_by_job(dim), min_slack_by_job(dim), min_slack_worker_by_job(
+					dim), match_job_by_worker(dim), match_worker_by_job(dim), parent_worker_by_committed_job(
+					dim), committed_workers(dim) {
 		for (uint32_t w = 0; w < dim; ++w) {
 			if (w < rows) {
 				uint32_t j = 0;
@@ -292,7 +289,7 @@ protected:
 			}
 		}
 		{
-			boost::multi_array<double, 1> min(boost::extents[dim]);
+			MultiArray<double, 1> min(dim);
 			for (uint32_t j = 0; j < dim; ++j) {
 				min[j] = POSITIVE_INFINITY;
 			}
@@ -334,13 +331,11 @@ private:
 	static const double POSITIVE_INFINITY;
 
 	uint32_t rows, cols, dim;
-	boost::multi_array<double, 2> cost_matrix;
-	boost::multi_array<double, 1> label_by_worker, label_by_job,
-			min_slack_by_job;
-	boost::multi_array<uint32_t, 1> min_slack_worker_by_job,
-			match_job_by_worker, match_worker_by_job,
-			parent_worker_by_committed_job;
-	boost::multi_array<bool, 1> committed_workers;
+	MultiArray<double, 2> cost_matrix;
+	MultiArray<double, 1> label_by_worker, label_by_job, min_slack_by_job;
+	MultiArray<uint32_t, 1> min_slack_worker_by_job, match_job_by_worker,
+			match_worker_by_job, parent_worker_by_committed_job;
+	MultiArray<bool, 1> committed_workers;
 };
 
 const double Hungarian::POSITIVE_INFINITY = std::numeric_limits<double>::max();
