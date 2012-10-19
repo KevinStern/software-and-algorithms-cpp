@@ -25,8 +25,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <stdint.h>
-
-#include <boost/smart_ptr.hpp>
+#include <limits>
 
 template<class T, uint32_t D, uint32_t E>
 class MultiArrayView;
