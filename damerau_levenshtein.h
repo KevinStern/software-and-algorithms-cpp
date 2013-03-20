@@ -91,6 +91,12 @@ public:
 	 */
 	int32_t execute(const std::string &source,
 			const std::string &target) const {
+		if (source.size() == 0) {
+			return target.size() * insert_cost;
+		}
+		if (target.size() == 0) {
+			return source.size() * delete_cost;
+		}
 		std::tr1::unordered_map<char, uint32_t> source_index_by_char;
 		MultiArray<int32_t, 2> table(source.size(), target.size());
 		if (source[0] == target[0]) {
