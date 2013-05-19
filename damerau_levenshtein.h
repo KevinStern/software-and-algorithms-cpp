@@ -22,11 +22,11 @@
 #ifndef DAMERAU_LEVENSHTEIN_H_
 #define DAMERAU_LEVENSHTEIN_H_
 
-#include <tr1/unordered_map>
-#include <stdint.h>
-#include <string>
 #include <algorithm>
+#include <cstdint>
 #include <limits>
+#include <string>
+#include <unordered_map>
 
 #include "multiarray.h"
 
@@ -97,7 +97,7 @@ public:
 		if (target.size() == 0) {
 			return source.size() * delete_cost;
 		}
-		std::tr1::unordered_map<char, uint32_t> source_index_by_char;
+		std::unordered_map<char, uint32_t> source_index_by_char;
 		MultiArray<int32_t, 2> table(source.size(), target.size());
 		if (source[0] == target[0]) {
 			table[0][0] = 0;
@@ -136,7 +136,7 @@ public:
 					max_source_letter_match_index = j;
 				}
 				int32_t swap;
-				std::tr1::unordered_map<char, uint32_t>::const_iterator find =
+				std::unordered_map<char, uint32_t>::const_iterator find =
 						source_index_by_char.find(target[j]);
 				if (find != source_index_by_char.end()
 						&& j_swap != uint32_MAX) {

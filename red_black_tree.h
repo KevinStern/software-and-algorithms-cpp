@@ -22,7 +22,7 @@
 #ifndef RED_BLACK_TREE_H_
 #define RED_BLACK_TREE_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 #ifndef NULL
 #define	NULL	0

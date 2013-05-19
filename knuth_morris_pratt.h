@@ -22,8 +22,10 @@
 #ifndef KNUTH_MORRIS_PRATT_H_
 #define KNUTH_MORRIS_PRATT_H_
 
-#include <string>
+#include <cstdint>
 #include <limits>
+#include <memory>
+#include <string>
 
 /**
  * An implementation of the Knuth Morris Pratt substring search algorithm. An
@@ -37,7 +39,8 @@
  */
 class KnuthMorrisPratt {
 public:
-	static const uint32_t NOT_FOUND;
+	static const uint32_t NOT_FOUND = std::numeric_limits<uint32_t>::max();
+
 	/**
 	 * Constructor.
 	 *
@@ -62,9 +65,7 @@ public:
 		}
 	}
 
-	~KnuthMorrisPratt() {
-		delete[] state_transition_table;
-	}
+	~KnuthMorrisPratt() {}
 
 	/**
 	 * Execute the search algorithm.
@@ -73,9 +74,9 @@ public:
 	 *            the string in which to search for the needle specified at
 	 *            construction time.
 	 * @return the index of the first occurrence of the needle string within the
-	 *         specified haystack string, -1 if none.
+	 *         specified haystack string, NOT_FOUND if none.
 	 */
-	uint32_t execute(std::string haystack) {
+	uint32_t execute(std::string &haystack) {
 		return execute(haystack, 0);
 	}
 
@@ -89,9 +90,9 @@ public:
 	 *            the index at which to begin the search within the haystack
 	 *            string.
 	 * @return the index of the first occurrence of the needle string within the
-	 *         specified portion of the haystack string, -1 if none.
+	 *         specified portion of the haystack string, NOT_FOUND if none.
 	 */
-	uint32_t execute(std::string haystack, uint32_t index) {
+	uint32_t execute(std::string &haystack, uint32_t index) {
 		uint32_t state = 0;
 		for (uint32_t i = index; i < haystack.length(); i++) {
 			if (haystack[i] == needle[state]) {
@@ -108,12 +109,10 @@ public:
 		}
 		return NOT_FOUND;
 	}
+
 private:
 	std::string needle;
-	uint32_t *state_transition_table;
+	std::unique_ptr<uint32_t[]> state_transition_table;
 };
-
-const uint32_t KnuthMorrisPratt::NOT_FOUND =
-		std::numeric_limits<uint32_t>::max();
 
 #endif /* KNUTH_MORRIS_PRATT_H_ */

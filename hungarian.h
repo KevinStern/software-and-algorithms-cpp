@@ -53,7 +53,7 @@
  */
 class Hungarian {
 public:
-	static const uint32_t UNASSIGNED;
+	static const uint32_t UNASSIGNED = std::numeric_limits<uint32_t>::max();
 
 	Hungarian(const MultiArray<double, 2> &costMatrix) :
 			rows(costMatrix.size()), cols(costMatrix[0].size()), dim(
@@ -328,7 +328,7 @@ protected:
 		}
 	}
 private:
-	static const double POSITIVE_INFINITY;
+	static constexpr double POSITIVE_INFINITY = std::numeric_limits<double>::max();
 
 	uint32_t rows, cols, dim;
 	MultiArray<double, 2> cost_matrix;
@@ -337,8 +337,5 @@ private:
 			match_worker_by_job, parent_worker_by_committed_job;
 	MultiArray<bool, 1> committed_workers;
 };
-
-const double Hungarian::POSITIVE_INFINITY = std::numeric_limits<double>::max();
-const uint32_t Hungarian::UNASSIGNED = std::numeric_limits<uint32_t>::max();
 
 #endif /* HUNGARIAN_H_ */

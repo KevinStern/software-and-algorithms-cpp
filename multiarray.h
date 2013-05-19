@@ -24,7 +24,7 @@
 
 #include <cstring>
 #include <cstdarg>
-#include <stdint.h>
+#include <cstdint>
 #include <limits>
 
 template<class T, uint32_t D, uint32_t E>
