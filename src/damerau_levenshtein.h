@@ -109,8 +109,8 @@ public:
       table[i][0] = std::min(del, std::min(ins, repl));
     }
     for (uint32_t j = 1; j < target.size(); ++j) {
-      int32_t del = table[0][j - 1] + insert_cost_;
-      int32_t ins = (j + 1) * insert_cost_ + delete_cost_;
+      int32_t del = (j + 1) * insert_cost_ + delete_cost_;
+      int32_t ins = table[0][j - 1] + insert_cost_;
       int32_t repl = j * insert_cost_ + (source[0] == target[j] ? 0 : replace_cost_);
       table[0][j] = std::min(del, std::min(ins, repl));
     }
