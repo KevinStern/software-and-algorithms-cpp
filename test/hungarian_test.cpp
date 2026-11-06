@@ -20,6 +20,8 @@
  */
 #include "test.h"
 
+#include <cmath>
+#include <limits>
 #include <unordered_set>
 
 #include "hungarian.h"
@@ -99,4 +101,70 @@ TEST(HungarianTestUnassignedWorker) {
   uint32_t expected[5] {1, Hungarian::UNASSIGNED, 2, 3, 0};
   ASSERT_ARRAY_EQ(expected, match, 5);
   ASSERT_EQ(3, compute_cost(matrix, match), 0.0000001);
+}
+
+TEST(HungarianTestInvalidInput) {
+  MultiArray<double, 2> matrix({{1.0, 2.0},
+                                {3.0, 4.0}});
+  try {
+    Hungarian(matrix, -0.001);
+    ASSERT_TRUE(false);
+  } catch (const std::invalid_argument&) {
+  }
+  try {
+    Hungarian(matrix, std::numeric_limits<double>::quiet_NaN());
+    ASSERT_TRUE(false);
+  } catch (const std::invalid_argument&) {
+  }
+  try {
+    Hungarian(matrix, std::numeric_limits<double>::infinity());
+    ASSERT_TRUE(false);
+  } catch (const std::invalid_argument&) {
+  }
+  try {
+    Hungarian(matrix, -std::numeric_limits<double>::infinity());
+    ASSERT_TRUE(false);
+  } catch (const std::invalid_argument&) {
+  }
+}
+
+TEST(HungarianTestEpsilonGreedyMatch) {
+  MultiArray<double, 2> matrix({{1.0 + 1e-6, 1.0},
+                                {1.0, 1.0}});
+
+  Hungarian exact(matrix);
+  uint32_t exact_match[2];
+  exact.execute(exact_match);
+  uint32_t expected_exact[2] {1, 0};
+  ASSERT_ARRAY_EQ(expected_exact, exact_match, 2);
+  ASSERT_EQ(2.0, compute_cost(matrix, exact_match), 1e-12);
+
+  Hungarian tolerant(matrix, 1e-5);
+  uint32_t tolerant_match[2];
+  tolerant.execute(tolerant_match);
+  uint32_t expected_tolerant[2] {0, 1};
+  ASSERT_ARRAY_EQ(expected_tolerant, tolerant_match, 2);
+  ASSERT_EQ(2.0 + 1e-6, compute_cost(matrix, tolerant_match), 1e-12);
+}
+
+TEST(HungarianTestEpsilonExecutePhase) {
+  MultiArray<double, 2> matrix({{0.0, 1.0, 1e-6, 1.0, 1.5e-6},
+                                {1.0, 0.0, 0.0, 0.0, 0.0},
+                                {1.0, 1.0, 0.0, 1e-6, 1.0},
+                                {0.0, 1.0, 1.0, 1.0, 1.0},
+                                {1.0, 0.0, 1.0, 1.0, 1.0}});
+
+  Hungarian exact(matrix);
+  uint32_t exact_match[5];
+  exact.execute(exact_match);
+  uint32_t expected_exact[5] {4, 3, 2, 0, 1};
+  ASSERT_ARRAY_EQ(expected_exact, exact_match, 5);
+  ASSERT_EQ(1.5e-6, compute_cost(matrix, exact_match), 1e-12);
+
+  Hungarian tolerant(matrix, 1e-5);
+  uint32_t tolerant_match[5];
+  tolerant.execute(tolerant_match);
+  uint32_t expected_tolerant[5] {2, 4, 3, 0, 1};
+  ASSERT_ARRAY_EQ(expected_tolerant, tolerant_match, 5);
+  ASSERT_EQ(2.0e-6, compute_cost(matrix, tolerant_match), 1e-12);
 }

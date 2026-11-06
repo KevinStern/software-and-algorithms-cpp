@@ -21,7 +21,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
+#include <stdexcept>
 
 #include "multiarray.h"
 
@@ -53,11 +55,15 @@ class Hungarian {
 public:
   static const uint32_t UNASSIGNED = std::numeric_limits<uint32_t>::max();
 
-  Hungarian(const MultiArray<double, 2>& cost_matrix) :
+  Hungarian(const MultiArray<double, 2>& cost_matrix, double epsilon = 0) :
       rows_(cost_matrix.size()), cols_(cost_matrix[0].size()), dim_(std::max(rows_, cols_)),
       cost_matrix_(dim_, dim_), label_by_worker_(dim_), label_by_job_(dim_),
       min_slack_by_job_(dim_), min_slack_worker_by_job_(dim_), match_job_by_worker_(dim_),
-      match_worker_by_job_(dim_), parent_worker_by_committed_job_(dim_), committed_workers_(dim_) {
+      match_worker_by_job_(dim_), parent_worker_by_committed_job_(dim_), committed_workers_(dim_),
+      epsilon_(epsilon) {
+    if (std::isnan(epsilon_) || std::isinf(epsilon_) || epsilon_ < 0) {
+      throw std::invalid_argument("Invalid epsilon");
+    }
     for (uint32_t w = 0; w < dim_; ++w) {
       if (w < rows_) {
         uint32_t j = 0;
@@ -163,7 +169,7 @@ protected:
           }
         }
       }
-      if (min_slack_value > 0) {
+      if (min_slack_value > epsilon_) {
         update_labeling(min_slack_value);
       }
       parent_worker_by_committed_job_[min_slack_job] = min_slack_worker;
@@ -228,7 +234,7 @@ protected:
       for (uint32_t j = 0; j < dim_; ++j) {
         if (match_job_by_worker_[w] == UNASSIGNED
             && match_worker_by_job_[j] == UNASSIGNED
-            && cost_matrix_[w][j] - label_by_worker_[w] - label_by_job_[j] == 0) {
+            && std::abs(cost_matrix_[w][j] - label_by_worker_[w] - label_by_job_[j]) <= epsilon_) {
           match(w, j);
         }
       }
@@ -329,4 +335,5 @@ private:
   MultiArray<uint32_t, 1> min_slack_worker_by_job_, match_job_by_worker_,
     match_worker_by_job_, parent_worker_by_committed_job_;
   MultiArray<bool, 1> committed_workers_;
+  double epsilon_;
 };
